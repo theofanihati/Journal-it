@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal It/register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="flex">
+        <div class="w-1/2 bg-cover" style="background-image: url('/public/img/cover.jpeg')"></div>
+        <div class="w-1/2 p-8">
+            <div class="flex items-center justify-center">
+                <img src="/public/img/logo_Journalit_landscape.png" class="w-36"/>
+            </div>
+            <h3 class="text-4xl font-bold mb-4">Register</h3>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-sm " for="email">Email</label>
+                    <input class="shadow-md appearance-none border-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Type your email here">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm" for="username">User Name</label>
+                    <input class="shadow-md appearance-none border-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Type your username here">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm" for="password">Password</label>
+                    <input class="shadow-md appearance-none border-none rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Type your password here">
+                </div>
+                <div class="flex items-center justify-center">
+                    <button class="bg-customPink2 hover:bg-customPink3 text-white w-80 py-2 px-4 rounded-full focus:outline-none focus:shadow-outline" type="button">
+                        Register
+                    </button>
+                </div>
+                <p class="text-center text-gray-500 text-xs mt-4 ">
+                    Already have an account? <a href="login.html" class="text-customPurple1 hover:text-black"><u>Log In</u></a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
