@@ -1,8 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './public/register.html',
-    './public/login.html',
+    './public/register.php',
+    './public/login.php',
+    './public/home.php',
+    './public/add_journal.php',
+    './public/edit_journal.php',
   ],
   theme: {
     extend: {},
