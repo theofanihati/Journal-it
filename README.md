@@ -14,7 +14,8 @@ This project using HTML, CSS, Javascript, and PHP as main language. Also used [T
 - Delete journal
 - Edit Journal
 - Search
-![Alt Text](img/readme_journalit.png)
+
+![Journal-it](/public/img/readme_journalit.png)
 
 ## How to implement this repo?
 - clone it
