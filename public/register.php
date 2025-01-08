@@ -3,6 +3,7 @@ include "service/database.php";
     session_start();
 
     $register_massage = "";
+    $show_registered_popup = false;
 
     if(isset($_SESSION["is_login"])){
         header("location: home.php");
@@ -19,9 +20,8 @@ include "service/database.php";
             try { 
                 $stmt = $db->prepare("INSERT INTO users(user_email, user_name, user_password) VALUES (?, ?, ?)"); 
                 $stmt->bind_param("sss", $email, $username, $password); 
-                if ($stmt->execute()) { 
-                    $register_massage = "REGISTERED, go click that LOG IN option!"; 
-                    header("Location: login.php"); 
+                if ($stmt->execute()) {   
+                $show_registered_popup = true;
                 } else { 
                     $register_massage = "YOUR REGISTER doesn't run successfully, try again"; 
                 } 
@@ -77,5 +77,21 @@ include "service/database.php";
             <div class="img-fluid" style="height:116px; width: 720px;"></div>
         </div>
     </div>
+    <div id="popup-registered" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-4 rounded-2xl shadow-lg w-1/2 text-center">
+            <p class="text-xl font-semibold">Register Success!</p>
+            <p class="text-lg text-customPink3">Please log in</p>
+            <button id="ok-button" class="bg-customPink2 hover:bg-customPink3 text-white w-3/4 py-2 px-4 rounded-full focus:outline-none focus:shadow-outline" style="margin-top: 16px">OK</button>
+        </div>
+    </div>
+    <script>
+        <?php if($show_registered_popup): ?>
+            document.getElementById('popup-registered').classList.remove('hidden');
+        <?php endif ?>
+        
+        document.getElementById('ok-button').addEventListener('click', () => {
+            window.location.href = 'home.php';
+        });
+    </script>
 </body>
 </html>

@@ -27,7 +27,6 @@ if (isset($_POST['save-button'])) {
         $stmt = $db->prepare("INSERT INTO journals (title, description, date_created, user_name, image) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param('sssss', $title, $description, $date, $username, $image_path);
         if ($stmt->execute()) {
-            $add_massage = "Journal saved successfully!";
             $show_created_popup = true;
         } else {
             $add_massage = "Failed to save journal.";
@@ -100,9 +99,11 @@ if (isset($_POST['save-button'])) {
         document.getElementById('ok-button').addEventListener('click', () => {
             window.location.href = 'home.php';
         });
+
         document.getElementById('close-button').addEventListener('click', () => { 
             document.getElementById('popup-max-image').classList.add('hidden');
         });
+
         <?php if($show_created_popup): ?>
         document.getElementById('popup-created').classList.remove('hidden');
         <?php endif ?>

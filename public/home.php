@@ -2,6 +2,8 @@
 include "service/database.php";
 session_start();
 
+$show_deleted_popup = false;
+
 if (!isset($_SESSION["username"])) {
     header("Location: login.php");
     exit();
@@ -47,15 +49,13 @@ try {
     $logout_messages = $e->getMessage();
 }
 
-// Handle delete action
-if (isset($_POST["delete-journal"])) {
+if (isset($_POST["delete-button"])) {
     $journalId = $_POST["journal-id"];
     try {
         $stmt = $db->prepare("DELETE FROM journals WHERE id_journal = ?");
         $stmt->bind_param("i", $journalId);
         if ($stmt->execute()) {
-            header("Location: home.php"); // Redirect after deleting
-            exit();
+            $show_deleted_popup = true;
         } else {
             $logout_messages = "Delete failed!";
         }
@@ -103,13 +103,6 @@ if (isset($_POST["delete-journal"])) {
             <h2 id="date-display" class="mb-6"></h2>
 
             <!--HOWSSS-->
-            <!-- <div class="bg-white rounded-2xl border-sm shadow-md mb-6">
-                <div class="text-center p-4">
-                    <label class="block text-customGray2 mb-2">How's your feeling today?</label>
-                    <button onclick="location.href='add_journal.php'" class="px-4 py-2 bg-customPink3 text-white rounded">Tell us your story</button>
-                </div>
-            </div> -->
-
             <div class="bg-white rounded-2xl border-sm shadow-md">
                 <div class="img-fluid w-full" style="height: 24px;"></div>
                 <label class="block text-customGray2 text-center mb-2 p-2">How's your feeling today?</label>
@@ -134,10 +127,6 @@ if (isset($_POST["delete-journal"])) {
 
 
             <!-- Search -->
-            <!-- <div class="flex bg-white rounded-2xl border-sm shadow-md mb-6">
-                <input id="search-input" type="text" placeholder="Search" class="w-full p-2">
-            </div> -->
-
             <div class="flex bg-white rounded-2xl border-sm shadow-md mb-4">
                 <input id="search-input" type="text" placeholder="Search" class="w-full p-2" style="margin-left: 16px;">
                 <button onclick="searchJournal()" class="p-2">
@@ -154,27 +143,36 @@ if (isset($_POST["delete-journal"])) {
                                 <img src="img/icon_calendar.png" style="width: 40px; height: 40px; padding: 4px;">
                                 <p id="journal-date" class="px-4 py-2 text-gray-600"></p>
                             </div>
-                            <hr class="border-t border-customPink3">
                         </li>
+                        <hr class="border-t border-customPink3">
                         <li>
                             <div class="flex" style="margin-top: 12px; margin-bottom: 12px;">
                                 <img src="img/icon_pen.png" style="width: 40px; height: 40px; padding: 4px;">
-                                <button id="edit-journal" onclick="location.href='edit_journal.php'" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit Journal</button>
-                            </div>
-                            <hr class="border-t border-customPink3">
+                                <button 
+                                    id="edit-button"
+                                    class="block w-full text-left px-4 py-2 hover:text-customPink3">
+                                    Edit Journal
+                                </button>
                         </li>
+                        <hr class="border-t border-customPink3">
                         <li>
                             <div class="flex" style="margin-top: 12px; margin-bottom: 12px;">
                                 <img src="img/icon_trash.png" style="width: 40px; height: 40px; padding: 4px;">
                                 <form action="" method="POST">
                                     <input type="hidden" name="journal-id" id="journal-id">
-                                    <button type="submit" name="delete-journal" class="block w-full text-left text-red px-4 py-2 hover:bg-gray-100">Delete Journal</button>
+                                    <button id="delete-button" name="delete-button" type="submit" 
+                                        class="block w-full text-left text-black px-4 py-2 hover:text-customPink3">
+                                        Delete Journal
+                                    </button>
                                 </form>
                             </div>
-                            <hr class="border-t border-customPink3">
                         </li>
+                        <hr class="border-t border-customPink3">
                     </ul>
-                    <button id="close-popup" class="mt-4 bg-red-500 text-black px-4 py-2 rounded">Close</button>
+                    <button id="close-popup" 
+                        class="mt-4 bg-red-500 text-black px-4 py-2 rounded hover:text-customPink3">
+                        Close
+                    </button>
                 </div>
             </div>
 
@@ -187,35 +185,39 @@ if (isset($_POST["delete-journal"])) {
                     $journals = $result->fetch_all(MYSQLI_ASSOC);
                     foreach ($journals as $journal):                    
                 ?>
-
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex items-start mb-4 justify-center">
-                            <div class="text-center mr-4">
-                                <?php 
-                                    $date = new DateTime($journal['date_created']); 
-                                    $imageSrc = !empty($journal['image']) ? htmlspecialchars($journal['image']) : null;
-                                ?>
-                                <p class="text-gray-700"><?= $date->format('D') ?></p>
-                                <p class="text-2xl font-bold"><?= $date->format('d') ?></p>
-                                <p class="text-gray-700"><?= $date->format('Y') ?></p>
-                            </div>
-                            <div class="flex-1">
-                                <?php if ($imageSrc): ?>
-                                <img src="<?= $imageSrc ?>" class="rounded-lg max-h-24 w-full mb-2">
-                                <?php endif; ?>
-                                <h2 class="text-xl font-bold mb-2"><?= htmlspecialchars($journal['title']) ?></h2>
-                                <p><?= htmlspecialchars($journal['description']) ?></p>
-                            </div>
-                            <button onclick="showPopup(<?= $journal['id_journal'] ?>)" class="p-2">
-                                <img src="img/icon_more.png" style="width: 24px; height: 24px; margin-right: 8px;">
-                            </button>
-                            
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-hidden">
+                    <div class="flex items-start mb-4 justify-center">
+                        <div class="text-center mr-4">
+                            <?php 
+                                $date = new DateTime($journal['date_created']); 
+                                $imageSrc = !empty($journal['image']) ? htmlspecialchars($journal['image']) : null;
+                            ?>
+                            <p class="text-gray-700"><?= $date->format('D') ?></p>
+                            <p class="text-2xl font-bold"><?= $date->format('d') ?></p>
+                            <p class="text-gray-700"><?= $date->format('Y') ?></p>
                         </div>
+                        <div class="flex-1 w-full">
+                            <?php if ($imageSrc): ?>
+                                <img src="<?= $imageSrc ?>" class="rounded-lg max-h-24 w-full object-cover">
+                            <?php endif; ?>
+                            <h2 class="text-xl font-bold mb-2"><?= htmlspecialchars($journal['title']) ?></h2>
+                            <p class="w-full"><?= htmlspecialchars($journal['description']) ?></p>
+                        </div>
+                        <button onclick="showPopup(<?= $journal['id_journal'] ?>)" class="p-2">
+                            <img src="img/icon_more.png" style="width: 24px; height: 24px; margin-right: 8px;">
+                        </button>
                     </div>
-                    
+                </div>
                 <?php endforeach; ?>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="popup-deleted" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-4 rounded-2xl shadow-lg w-1/2 text-center">
+        <p class="text-xl font-semibold">Journal Deleted</p>
+        <button id="ok-button" class="bg-customPink2 hover:bg-customPink3 text-white w-3/4 py-2 px-4 rounded-full focus:outline-none focus:shadow-outline" style="margin-top: 16px">OK</button>
     </div>
 </div>
 
@@ -239,13 +241,34 @@ if (isset($_POST["delete-journal"])) {
     function showPopup(journalId) {
         currentJournalId = journalId;
         document.getElementById('journal-id').value = journalId;
-        document.getElementById('popup-menu').classList.remove('hidden');
-    }
 
+        const journalDateElement = document.getElementById("journal-date");
+        const journal = <?= json_encode($journals) ?>.find(j => j.id_journal == journalId);
+        if (journalDateElement && journal) {
+            const date = new Date(journal.date_created);
+            journalDateElement.textContent = date.toLocaleString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric'
+            });
+        }
+
+        const editButton = document.getElementById('edit-button');
+        editButton.setAttribute("onclick", `location.href='edit_journal.php?id_journal=${journalId}'`);
+
+        document.getElementById('popup-menu').classList.remove('hidden');
+        
+    }
+    <?php if($show_deleted_popup): ?>
+        document.getElementById('popup-deleted').classList.remove('hidden');
+        <?php endif ?>
+
+    document.getElementById('ok-button').addEventListener('click', () => {
+        document.getElementById('popup-deleted').classList.add('hidden');
+        window.location.href = 'home.php';
+        });
+        
     document.getElementById('close-popup').addEventListener('click', () => {
         document.getElementById('popup-menu').classList.add('hidden');
     });
 </script>
-
 </body>
 </html>
